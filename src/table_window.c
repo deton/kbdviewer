@@ -793,8 +793,7 @@ int TableWindow::handleTimer() {
     if (isSoftKbdClicked) {
         isSoftKbdClicked = false;
         InvalidateRect(hwnd, tc->OPT_softKeyboard ? &rcClick : NULL, FALSE);
-        rcClick.right = rcClick.left;
-        rcClick.bottom = rcClick.top;
+        SetRectEmpty(&rcClick);
     }
     // 計時
         if (deciSecAfterStroke < 1024) deciSecAfterStroke++;
@@ -830,6 +829,7 @@ int TableWindow::handleTimer() {
         } else {
             isShiftNow = !!(GetKeyState(VK_SHIFT) & 0x8000);  // GetAsyncKeyState じゃなくて大丈夫なのだろうか
         }
+#if 0
         if ((tc->mode == TCode::NORMAL || tc->mode == TCode::CAND1)
             && !tc->helpMode 
             && IsWindowVisible(hwnd)
@@ -837,6 +837,14 @@ int TableWindow::handleTimer() {
             && (trigDisp || isShift != isShiftPrev && isShiftNow == isShift)) {
                 if (tc->OPT_shiftLockStroke == 1) tc->makeVKB(tc->lockedBlock!=tc->table&&!isShift);
                 InvalidateRect(hwnd, NULL, FALSE);
+        }
+#endif
+        if (isShiftNow != isShift) {
+            int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+            int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+            RECT r;
+            SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
+            InvalidateRect(hwnd, &r, FALSE);
         }
         isShiftPrev = isShift;
         isShift = isShiftNow;
@@ -1287,11 +1295,19 @@ int TableWindow::handleHotKey() {
 
     if (tc->OPT_softKeyboard) {
         SetTimer(hwnd, ID_MYTIMER, 100, NULL);
-        if (isSoftKbdClicked) {
-            isShift = isShiftPrev = isSoftKbdShift;
-        } else {
+        //if (isSoftKbdClicked) {
+        //    isShift = isShiftPrev = isSoftKbdShift;
+        //} else {
+            bool isShiftTmp = isShiftPrev;
             isShift = isShiftPrev = !!(GetKeyState(VK_SHIFT) & 0x8000);
-        }
+            if (isShift != isShiftTmp) {
+                int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+                int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+                RECT r;
+                SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
+                InvalidateRect(hwnd, &r, FALSE);
+            }
+        //}
         deciSecAfterStroke = 0;
     }
 
@@ -2717,6 +2733,12 @@ void TableWindow::drawVKB50(HDC hdc, bool isWithBothSide) {
     if (isSoftKbdClicked) {
         SelectObject(hdc, brCL);
         Rectangle(hdc, rcClick.left, rcClick.top, rcClick.right, rcClick.bottom);
+    }
+    if (isShift) { // 柱の最下部をShiftキーとして背景色を変える
+        SelectObject(hdc, brCL);
+        int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+        int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+        Rectangle(hdc, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
     }
     for (int y = 0; y < 5; y++) {
         int py = MARGIN_SIZE + BLOCK_SIZE * y;

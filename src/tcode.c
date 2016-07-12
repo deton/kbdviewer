@@ -554,6 +554,9 @@ void TCode::keyinNormal(int key) {
                 if (OPT_outputAlphabetAsVKey && m >= 'a' && m <= 'z' ) {
                     m = MV(m-'a'+'A');
                 }
+                if (OPT_outputAlphabetAsVKey >= 2 && m >= 'A' && m <= 'Z') {
+                    m = MV(m-'A'+'A');
+                }
                 if (OPT_outputAlphabetAsVKey >= 2 && m >= '0' && m <= '9') {
                     m = MV(m);
                 }
