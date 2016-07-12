@@ -322,6 +322,9 @@ private:
     void drawMiniBuffer(HDC, int, COLORREF, MojiBuffer *);
                                 // ミニバッファ
 
+    // キー番号に対するrcClickを設定する
+    void setRcClickVKB50(int tckey);
+
     // 仮想鍵盤上のクリック位置をもとに、対応するキーを返す
     int getFromVKB50(int x, int y);
     int getFromVKB10(int x, int y);

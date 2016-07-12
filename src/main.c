@@ -46,7 +46,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance,
     HWND hwnd;
     hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
                           appName,
-                          "Š¿’¼‘‹",
+                          "‘ÅŒ®‘‹",
                           WS_DLGFRAME | WS_SYSMENU,
                           CW_USEDEFAULT, CW_USEDEFAULT,
                           176, 100,

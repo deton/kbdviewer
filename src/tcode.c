@@ -554,6 +554,13 @@ void TCode::keyinNormal(int key) {
                 if (OPT_outputAlphabetAsVKey && m >= 'a' && m <= 'z' ) {
                     m = MV(m-'a'+'A');
                 }
+                if (OPT_outputAlphabetAsVKey >= 2 && m >= '0' && m <= '9') {
+                    m = MV(m);
+                }
+                if (OPT_outputAlphabetAsVKey >= 2 && m == ' ') {
+                    m = MV(VK_SPACE);
+                }
+                //TODO: ,./ “™‚ÌƒL[‚àVKEY‚Æ‚µ‚Ä‘—•t
                 //</hankana>
                 mb.pushSoft(m);
             }

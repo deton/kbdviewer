@@ -159,6 +159,7 @@ void TableWindow::activate() {
     //<v127c - offHide2>
     // offHide=2 の時は (とりあえず) 表示しない
     //</v127c>
+    InvalidateRect(hwnd, NULL, FALSE);
 
     hotKeyMode = NORMAL;
     // HotKey の割付
@@ -193,6 +194,7 @@ void TableWindow::activate() {
     // 通常モードにする
     tc->mode = TCode::NORMAL;
     tc->helpMode = 0;          // ヘルプ非表示
+    setTitleText();
 }
 
 // -------------------------------------------------------------------
@@ -210,6 +212,7 @@ void TableWindow::inactivate() {
     //</v127c>
         ShowWindow(hwnd, SW_HIDE);
     }
+    InvalidateRect(hwnd, NULL, FALSE);
 
     if (tc->OPT_conjugationalMaze == 2) setMazeHotKey(0);
     hotKeyMode = OFF;
@@ -242,6 +245,7 @@ void TableWindow::inactivate() {
         setCursorHotKey(FALSE);
 
     tc->mode = TCode::OFF;
+    setTitleText();
 }
 
 void TableWindow::setMazeHotKey(int onoff) {
@@ -390,7 +394,7 @@ void TableWindow::resumeGlobalHotKey() {
 void TableWindow::setTitleText() {
     //<multishift2>
     char str[256];
-    sprintf(str, "漢直窓");
+    sprintf(str, "打鍵窓");
     if (tc->dirTable[DIR_table_name]) {
         strcat(str, " ");
         strcat(str, tc->dirTable[DIR_table_name]);
@@ -398,14 +402,14 @@ void TableWindow::setTitleText() {
     //</multishift2>
     if (tc->mode == TCode::OFF) {
         //<multishift2>
-        //SetWindowText(hwnd, "漢直窓 - OFF");
+        //SetWindowText(hwnd, "打鍵窓 - OFF");
         strcat(str, " - OFF");
         SetWindowText(hwnd, str);
         //</multishift2>
     } else {
         //<multishift2>
         ///char str[256];
-        //strcpy(str, "漢直窓 - ON");
+        //strcpy(str, "打鍵窓 - ON");
         strcat(str, " - ON");
         //</multishift2>
         if (tc->hirakataMode || tc->hanzenMode || tc->punctMode) {
@@ -445,7 +449,7 @@ int TableWindow::handleCreate() {
     nid.uFlags = 7; // NIF_ICON | NIF_MESSAGE | NIF_TIP
     nid.uCallbackMessage = KANCHOKU_ICONCLK;
     nid.hIcon = LoadIcon(instance, "kanmini0");
-    strcpy(nid.szTip, "漢直窓");
+    strcpy(nid.szTip, "打鍵窓");
     Shell_NotifyIcon(0 /* NIM_ADD */, &nid);
 
     makeStyle();
@@ -639,7 +643,7 @@ int TableWindow::handleDestroy() {
 int TableWindow::showVersionDialog() {
     char s[1024];
     sprintf(s,
-            "漢直窓 %s\n"
+            "打鍵窓 %s\n"
             "\n"
             "    キーボード  %s\n"
             "    テーブル  %s\n"
@@ -681,16 +685,18 @@ int TableWindow::handlePaint() {
     RealizePalette(hdc);
     //</v127c>
     // タイトル文字列設定
-    setTitleText();
+    //setTitleText();
 
     // OFF 時
     if (tc->mode == TCode::OFF) {
         drawFrameOFF(hdc);
+#if 0
         if (tc->OPT_softKeyboard) {
             MojiBuffer mb(4);
             mb.clear(); mb.pushSoft("EB漢S"); // ESC, BS, ON/OFF, Shift
             drawMiniBuffer(hdc, 4, COL_OFF_M1, &mb);
         }
+#endif
         drawVKBOFF(hdc);
         goto END_PAINT;
     }
@@ -757,10 +763,12 @@ int TableWindow::handlePaint() {
             work.pushSoft(tc->explicitGG);
             work.popN(work.length()-tc->ittaku);
             drawMiniBuffer(hdc, 4, COL_ON_K1, &work);
+#if 0
         } else if (tc->OPT_softKeyboard) {
             MojiBuffer mb(4);
             mb.clear(); mb.pushSoft("EB漢S"); // ESC, BS, ON/OFF, Shift
             drawMiniBuffer(hdc, 4, COL_ON_M1, &mb);
+#endif
         }
         drawVKB50(hdc, tc->isAnyShiftSeq || tc->OPT_shiftLockStroke);
         goto END_PAINT;
@@ -784,7 +792,9 @@ int TableWindow::handleTimer() {
     bool isShiftNow, trigDisp;
     if (isSoftKbdClicked) {
         isSoftKbdClicked = false;
-        InvalidateRect(hwnd, NULL, FALSE);
+        InvalidateRect(hwnd, tc->OPT_softKeyboard ? &rcClick : NULL, FALSE);
+        rcClick.right = rcClick.left;
+        rcClick.bottom = rcClick.top;
     }
     // 計時
         if (deciSecAfterStroke < 1024) deciSecAfterStroke++;
@@ -969,7 +979,7 @@ int TableWindow::handleNotifyVKPROCESSKEY() {
     //<v127c>
     // [連習スレ2:517] キーリピート時の問題
     //RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
-    InvalidateRect(hwnd, (tc->OPT_softKeyboard && isSoftKbdClicked) ? &rcClick : NULL, TRUE);
+    InvalidateRect(hwnd, tc->OPT_softKeyboard ? &rcClick : NULL, FALSE);
     //</v127c>
     return 0;
 }
@@ -1111,10 +1121,12 @@ int TableWindow::handleAsSoftKbd() {
 int TableWindow::handleHotKey() {
     int key = wParam;
 
-    // 少なくとも文字送出完了まではタイマー不要
-    if (tc->mode != TCode::OFF) {
-        KillTimer(hwnd, ID_MYTIMER);
-    }
+    // どのキーが押されたと認識されたかを一瞬背景色を変えて表示
+    // timerイベントが来る前に次キー打鍵時用に、前のキーの背景色を戻す
+    InvalidateRect(hwnd, &rcClick, FALSE);
+    setRcClickVKB50(key);
+    isSoftKbdClicked = true;
+    //InvalidateRect(hwnd, &rcClick, FALSE);
 
     // ON/OFF
     if (key == ACTIVE_KEY || key == ACTIVE2_KEY || key == ACTIVEIME_KEY || key == INACTIVE_KEY || key == INACTIVE2_KEY) {
@@ -1270,10 +1282,10 @@ int TableWindow::handleHotKey() {
     //<v127c>
     // [連習スレ2:517] キーリピート時の問題
     //RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
-    InvalidateRect(hwnd, (tc->OPT_softKeyboard && isSoftKbdClicked) ? &rcClick : NULL, TRUE);
+    InvalidateRect(hwnd, tc->OPT_softKeyboard ? &rcClick : NULL, FALSE);
     //</v127c>
 
-    if (tc->mode != TCode::OFF || tc->OPT_softKeyboard) {
+    if (tc->OPT_softKeyboard) {
         SetTimer(hwnd, ID_MYTIMER, 100, NULL);
         if (isSoftKbdClicked) {
             isShift = isShiftPrev = isSoftKbdShift;
@@ -3011,6 +3023,36 @@ int TableWindow::getFromVKB50(int x, int y) {
     return k;
 }
 
+// -------------------------------------------------------------------
+// キー番号に対するrcClickを設定する
+void TableWindow::setRcClickVKB50(int tckey) {
+    rcClick.top = MARGIN_SIZE + 1;
+    rcClick.left = 1;
+    rcClick.right = rcClick.left;
+    rcClick.bottom = rcClick.top;
+
+    int k;
+    if (tckey < TC_NKEYS) {
+        k = tckey;
+    } else if (TC_ISSHIFTED(tckey)) {
+        k = TC_UNSHIFT(tckey);
+    } else if (tckey == RET_KEY) {
+        k = TC_NKEYS; // 右下端の空いてる箱をRETURNキーに
+    } else {
+        return;
+    }
+    int j = k / 10;
+    int i = k % 10;
+
+    rcClick.top = MARGIN_SIZE + BLOCK_SIZE * j + 1;
+    rcClick.bottom = rcClick.top + BLOCK_SIZE;
+
+    rcClick.left = MARGIN_SIZE + BLOCK_SIZE * i + 1;
+    if (j == 4) { rcClick.left += BLOCK_SIZE / 2; }
+    else if (4 < i) { rcClick.left += BLOCK_SIZE; }
+    rcClick.right = rcClick.left + BLOCK_SIZE;
+}
+
 // 仮想鍵盤上のクリック位置をもとに、対応するキーを返す (10 鍵)
 int TableWindow::getFromVKB10(int x, int y) {
     rcClick.top = MARGIN_SIZE + 1;
@@ -3064,7 +3106,7 @@ int TableWindow::getFromVKB10(int x, int y) {
 // -------------------------------------------------------------------
 // エラーを表示し、終了
 void TableWindow::error(char *mes) {
-    MessageBoxEx(hwnd, mes, "漢直窓 - エラー",
+    MessageBoxEx(hwnd, mes, "打鍵窓 - エラー",
                  MB_OK | MB_ICONERROR, LANG_JAPANESE);
     PostQuitMessage(0);
 }
@@ -3073,7 +3115,7 @@ void TableWindow::error(char *mes) {
 // 警告を表示するが、継続する
 void TableWindow::warn(char *mes) {
     // アイコンの選択は正しいだろうか?
-    MessageBoxEx(hwnd, mes, "漢直窓 - 警告",
+    MessageBoxEx(hwnd, mes, "打鍵窓 - 警告",
                  MB_OK | MB_ICONEXCLAMATION, LANG_JAPANESE);
 }
 
