@@ -563,7 +563,7 @@ void TCode::keyinNormal(int key) {
                 if (OPT_outputAlphabetAsVKey >= 2 && m == ' ') {
                     m = MV(VK_SPACE);
                 }
-                //TODO: ,./ 等のキーもVKEYとして送付
+                // ;,./ 等のキーもVKEYとして送付したい場合は、@^ 指定で。
                 //</hankana>
                 mb.pushSoft(m);
             }

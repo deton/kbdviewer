@@ -33,13 +33,15 @@ class Parser {
     char *buffer;               // 文字列バッファ
     int currentToken;           // 最後に読んだトークン
     int lineNumber;             // 今読んでる行数
+    const int *vkey;            // VKEYテーブル
 
     // コンストラクタ
-    Parser(istream *i, HWND h) {
+    Parser(istream *i, HWND h, const int *vk) {
         is = i;
         buffer = new char[BUFFER_SIZE];
         lineNumber = 1;
         hwnd = h;
+        vkey = vk;
     }
 
     // デストラクタ

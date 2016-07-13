@@ -1682,7 +1682,7 @@ void TableWindow::initTC() {
     is->open(tableFile/*, is->nocreate*/);
     if (is->fail()) { error("テーブルファイルが開けません"); return; }
     // パーズする
-    Parser *parser = new Parser(is, hwnd);
+    Parser *parser = new Parser(is, hwnd, vkey);
     ControlBlock *table = parser->parse();
     is->close();
 	is->clear();
@@ -2696,18 +2696,6 @@ void TableWindow::drawVKBOFF(HDC hdc) {
     SelectObject(hdc, fnSave);
 
     DeleteObject(brCL);
-}
-
-// -------------------------------------------------------------------
-// VK_XXXに対応する表示用文字を返す
-char TableWindow::toAscii(UINT vk, bool shift) {
-    static BYTE keystate[256];
-    WORD ch[2] = {0, 0};
-    keystate[VK_SHIFT] = shift ? 0x80 : 0;
-    if (::ToAscii(vk, 0, keystate, ch, 0) > 0) {
-        return ch[0];
-    }
-    return 0;
 }
 
 // -------------------------------------------------------------------

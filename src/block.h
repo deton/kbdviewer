@@ -75,6 +75,8 @@
 #define F_VERB_FIRST    82      // @v ・ 第一打鍵のキー
 #define F_VERB_THIS     83      // @^ ・ 今回打ったこのキー
 
+char toAscii(int vk, bool isShift); // VK_XXXに対応する表示用文字を返す
+
 // -------------------------------------------------------------------
 // Block
 
@@ -126,9 +128,10 @@ class ControlBlock : public Block {
 class SpecialBlock : public Block {
  public:
     int function;           // ブロックの機能
+    char *face;                 // 表示用文字列
     char *getFace();
-    SpecialBlock(char);
-    ~SpecialBlock() {};
+    SpecialBlock(char, int);
+    ~SpecialBlock() { delete(face); };
     int kind() { return SPECIAL_BLOCK; }
     void *accept(BlockVisitor *);
 };

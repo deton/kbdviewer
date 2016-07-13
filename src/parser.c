@@ -61,7 +61,7 @@ void Parser::parseControl(ControlBlock *node) {
             break;
         case SPECIAL:           // @c : 特殊ブロック
             if (node->block[k]) delete(node->block[k]);
-            node->block[k] = new SpecialBlock(buffer[0]);
+            node->block[k] = new SpecialBlock(buffer[0], vkey[i]);
             setNextToken();
             break;
         case 0:                 // 途中でファイルが終わった場合 : エラー
@@ -112,7 +112,7 @@ void Parser::parseRoute(ControlBlock *node) {
             break;
         case SPECIAL:           // @c : 特殊ブロック
             if (node->block[k]) delete(node->block[k]);
-            node->block[k] = new SpecialBlock(buffer[0]);
+            node->block[k] = new SpecialBlock(buffer[0], vkey[TC_UNSHIFT(k)]);
             break;
         case RBRACE:            // '}' が来たらエラー
         case COMMA:             // ',' が来てもエラー

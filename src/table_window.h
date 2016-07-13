@@ -335,7 +335,6 @@ private:
 
     void readTargetWindowSetting(char *); // 出力先ウィンドウごとの設定の読込
     int getOutputMethod(HWND);  // 指定したウィンドウに対するoutputMethodを取得
-    char toAscii(UINT vk, bool isShift); // VK_XXXに対応する表示用文字を返す
 
     void makeStyle();
     void readStyleSetting();

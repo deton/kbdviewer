@@ -71,7 +71,7 @@ ControlBlock::~ControlBlock() {
 
 // -------------------------------------------------------------------
 
-SpecialBlock::SpecialBlock(char c) {
+SpecialBlock::SpecialBlock(char c, int vkey) {
     switch (c) {
     case 's':                   // A/B モード切り替え (OBSOLETE)
         function = F_SWITCH_MODE; break;
@@ -141,7 +141,11 @@ SpecialBlock::SpecialBlock(char c) {
     case 'v':                   // 第一打鍵のキー
         function = F_VERB_FIRST; break;
     case '^':                   // 今回打ったこのキー
-        function = F_VERB_THIS; break;
+        function = F_VERB_THIS;
+        face = new char[2];
+        face[0] = toAscii(vkey, false);
+        face[1] = '\0';
+        break;
 
     default:                    // その他 (未実装のもの)
         function = 0; break;
@@ -200,7 +204,7 @@ char *SpecialBlock::getFace() {
     case F_HELP_FORW:   return "≫";
 
     case F_VERB_FIRST:  return "・";
-    case F_VERB_THIS:   return "・";
+    case F_VERB_THIS:   return face;
 
     default:            return "○";
     }
@@ -218,6 +222,18 @@ void *ControlBlock::accept(BlockVisitor *v) {
 
 void *SpecialBlock::accept(BlockVisitor *v) {
     return v->visitSpecialBlock(this);
+}
+
+// -------------------------------------------------------------------
+// VK_XXXに対応する表示用文字を返す
+char toAscii(int vk, bool shift) {
+    static BYTE keystate[256];
+    WORD ch[2] = {0, 0};
+    keystate[VK_SHIFT] = shift ? 0x80 : 0;
+    if (::ToAscii(vk, 0, keystate, ch, 0) > 0) {
+        return ch[0];
+    }
+    return 0;
 }
 
 // -------------------------------------------------------------------
