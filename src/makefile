@@ -1,27 +1,16 @@
 # --------------------------------------------------------------------
 # 漢直窓 1.27   Makefile for Borland C++ Compiler 5.5.1
 # --------------------------------------------------------------------
-#
-# 「漢索窓」(kansaku.exe) のためのエントリを追加しています。
-# 「漢索窓」のソースとして追加したファイルは以下のとおり:
-# - kansaku.h
-# - kansaku.c
-# - kansaku.ico
-# - kansakum.ico
-# - kansaku.rc
 
 # --------------------------------------------------------------------
 
 TARGET	= kanchoku.exe
-TARGET2	= kansaku.exe
-TARGET3	= wininfo.exe
-TARGET4	= kanchar.dll
 
 # --------------------------------------------------------------------
 
 CC	= bcc32
 ###RC	= brc32 -i"c:\Borland\Bcc55\include"
-RC	= brc32 -i"c:\programs\Borland\Bcc55\include"
+RC	= brc32 -i"d:\usr\Bcc55\include"
 LINKER	= ilink32 -v- -x -Gn -c -Tpe
 DLLLINKER	= ilink32 -v- -x -Gn -c -Tpd
 GUIFLAGS= -aa
@@ -41,20 +30,9 @@ SRCS	= main.c table_window.c block.c parser.c mg_table.c control_window.c \
 RES	= kanchoku.ico kanmini0.ico kanmini1.ico
 OBJS	= $(SRCS:.c=.obj)
 
-# 漢索窓
-SRCS2	= kansaku.c block.c moji.c parser.c st_table.c debug.c
-RES2	= kansaku.ico kansakum.ico
-OBJS2	= $(SRCS2:.c=.obj)
-
-SRCS3	= wininfo.c
-OBJS3	= $(SRCS3:.c=.obj)
-
-SRCS4	= kanchar.c
-OBJS4	= $(SRCS4:.c=.obj)
-
 # --------------------------------------------------------------------
 
-all: $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4)
+all: $(TARGET)
 
 # --------------------------------------------------------------------
 
@@ -69,45 +47,11 @@ $(LIBS)
 kanchoku.res
 !
 
-# 漢索窓
-$(TARGET2): $(OBJS2) kansaku.res
-	$(LINKER) $(GUIFLAGS) @&&!
-c0w32.obj $(OBJS2)
-$(TARGET2)
-kansaku.map
-$(LIBS)
-	# default .def file
-kansaku.res
-!
-
-$(TARGET3): $(OBJS3)
-	$(LINKER) $(GUIFLAGS) @&&!
-c0w32.obj $(OBJS3)
-$(TARGET3)
-wininfo.map
-$(LIBS)
-	# default .def file
-	# no .res file
-!
-
-$(TARGET4): $(OBJS4)
-	$(DLLLINKER) @&&!
-c0d32.obj $(OBJS4)
-$(TARGET4)
-kanchar.map
-$(LIBS) imm32.lib
-	# default .def file
-	# no .res file
-!
 # --------------------------------------------------------------------
 
 # 漢直窓
 kanchoku.res: kanchoku.rc $(RES)
 	$(RC) $(RCFLAGS) kanchoku.rc
-
-# 漢索窓
-kansaku.res: kansaku.rc $(RES2)
-	$(RC) $(RCFLAGS) kansaku.rc
 
 # --------------------------------------------------------------------
 
@@ -132,23 +76,12 @@ table_window.obj: table_window.c table_window.h block.h bushu_dic.h mg_table.h m
 tcode.obj: tcode.c tcode.h tc.h block.h bushu_dic.h mg_table.h moji.h st_table.h table_window.h debug.h gg_dic.h
 ##</v127a - gg>
 debug.obj: debug.c debug.h
-kansaku.obj: kansaku.c kansaku.h block.h parser.h st_table.h
-
-wininfo.obj: wininfo.c
-
-kanchar.obj: kanchar.c kanchar.h
 
 # --------------------------------------------------------------------
 
 install: all
-	- del ..\$(TARGET)
-	- del ..\$(TARGET2)
-	- del ..\$(TARGET3)
-	- del ..\$(TARGET4)
-	copy $(TARGET) ..
-	copy $(TARGET2) ..
-	copy $(TARGET3) ..
-	copy $(TARGET4) ..
+	- del ..\kbdviewer.exe
+	copy $(TARGET) ..\kbdviewer.exe
 
 clean:
 	- del *.obj
