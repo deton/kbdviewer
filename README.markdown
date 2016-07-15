@@ -13,16 +13,21 @@
   ([姫踊子草](http://www.vector.co.jp/magazine/softnews/110415/n1104151.html)の、補助鍵盤画像で、「キー操作を表示する」と同様のことができるかも。)
 
 ## 使い方・動作
-起動後、`Ctrl+\`でオンに切り替えると、打ったキーを表示します。
+1. 起動して`Ctrl+\`や右クリックでオンに切り替えてください。
+2. その後、物理キーボードでキーを打つと、打ったキーの背景色を100ms間変えて表示します。
 
 オンにすると各キーに対してRegisterHotKey()をします。
 キーが打たれた時に送られてくるWM_HOTKEYをもとに表示を行うとともに、
 keybd_event()を発行してIMEやアプリにキーを送ります。
 
 ## 制約、既知の問題
-* Altキー等は未対応
+* AltキーやPageUp/PageDown/Home/End/Delキー等は未対応
+* ShiftキーやCtrlキーとの組み合わせは、Shift+文字キーやCtrl+文字キーのみ対応。Shift+TAB、Ctrl+←等やShift+Ctrl+文字等には未対応
+* 他プログラムでRegisterHotKey()されているキーはうまく動作しない場合あり
 
-もっとましな形で作るなら、[Carnac](https://github.com/Code52/carnac)を改造したり、[pyHook](https://sourceforge.net/projects/pyhook/)を使うのが良いかもしれません。
+もっとましな形で作るなら、WH_KEYBOARD_LLを使う形にしたり、
+[Carnac](https://github.com/Code52/carnac)を改造したり、
+[pyHook](https://sourceforge.net/projects/pyhook/)を使うのが良いかもしれません。
 
 ## 参考
 * [キー入力を表示しながらスクリーンショットGifを撮る](http://rcmdnk.github.io/blog/2014/08/01/computer-mac-windows/#windows)

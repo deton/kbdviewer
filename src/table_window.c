@@ -856,8 +856,8 @@ int TableWindow::handleTimer() {
         }
 #else
         if (isShiftNow != isShift) {
-            int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-            int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+            int left = 1;
+            int top = VMARGIN_SIZE + BLOCK_SIZE * 3 + 1;
             RECT r;
             SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
             InvalidateRect(hwnd, &r, FALSE);
@@ -871,8 +871,8 @@ int TableWindow::handleTimer() {
         if (!isCtrlNow) isCtrlNow = !!(GetAsyncKeyState(VK_RCONTROL)&0x8000);
         if (!isCtrlNow) isCtrlNow |= !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
         if (isCtrl != isCtrlPrev) {
-            int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-            int top = MARGIN_SIZE + BLOCK_SIZE * 2 + 1;
+            int left = 1;
+            int top = VMARGIN_SIZE + BLOCK_SIZE * 2 + 1;
             RECT r;
             SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
             InvalidateRect(hwnd, &r, FALSE);
@@ -1080,6 +1080,9 @@ int TableWindow::handleAsSoftKbd() {
             case LEFT_KEY:  vk = VK_LEFT;   break;
             case RIGHT_KEY: vk = VK_RIGHT;  break;
             case VK_LSHIFT: vk = VK_SHIFT;  break;
+            case TAB_KEY:   vk = VK_TAB;    break;
+            case UP_KEY:    vk = VK_UP;     break;
+            case DOWN_KEY:  vk = VK_DOWN;   break;
             //XXX: getFromVKB50()からこれら以外のキーを返す場合は追加要
             }
         }
@@ -1334,8 +1337,8 @@ int TableWindow::handleHotKey() {
             bool isShiftTmp = isShiftPrev;
             isShift = isShiftPrev = !!(GetKeyState(VK_SHIFT) & 0x8000);
             if (isShift != isShiftTmp) {
-                int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-                int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+                int left = 1;
+                int top = VMARGIN_SIZE + BLOCK_SIZE * 3 + 1;
                 RECT r;
                 SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
                 InvalidateRect(hwnd, &r, FALSE);
@@ -1343,8 +1346,8 @@ int TableWindow::handleHotKey() {
             bool isCtrlTmp = isCtrlPrev;
             isCtrl = isCtrlPrev = !!(GetKeyState(VK_CONTROL) & 0x8000);
             if (isCtrl != isCtrlTmp) {
-                int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-                int top = MARGIN_SIZE + BLOCK_SIZE * 2 + 1;
+                int left = 1;
+                int top = VMARGIN_SIZE + BLOCK_SIZE * 2 + 1;
                 RECT r;
                 SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
                 InvalidateRect(hwnd, &r, FALSE);
@@ -2482,15 +2485,15 @@ void TableWindow::drawFrameOFF(HDC hdc) {
     // 柱
     SelectObject(hdc, pnLN);
     SelectObject(hdc, brM1);
-    x = MARGIN_SIZE + BLOCK_SIZE * 5;
-    y = MARGIN_SIZE;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 5;
+    y = VMARGIN_SIZE;
     Rectangle(hdc, x, y, x + BLOCK_SIZE + 1, y + BLOCK_SIZE * 4 + 1);
 
     // キー
     for (int j = 0; j < 5; j++) {
-        y = MARGIN_SIZE + BLOCK_SIZE * j;
+        y = VMARGIN_SIZE + BLOCK_SIZE * j;
         for (int i = 0; i < 10; i++) {
-            x = MARGIN_SIZE + BLOCK_SIZE * i;
+            x = HMARGIN_SIZE + BLOCK_SIZE * i;
             if (j == 4) { x += BLOCK_SIZE / 2; }
             else if (4 < i) { x += BLOCK_SIZE; }
             SelectObject(hdc, pnLN);
@@ -2531,37 +2534,37 @@ void TableWindow::drawFrame50(HDC hdc) {
     Rectangle(hdc, 0, 0, WIDTH, HEIGHT);
     // ハイライト
     SelectObject(hdc, pnM3);
-    x = MARGIN_SIZE; y = MARGIN_SIZE + BLOCK_SIZE * 4;
+    x = HMARGIN_SIZE; y = VMARGIN_SIZE + BLOCK_SIZE * 4;
     MoveToEx(hdc, x, y + 1, NULL);
     LineTo(hdc, x + BLOCK_SIZE / 2 - 1, y + 1);
-    x = MARGIN_SIZE + BLOCK_SIZE / 2; y = MARGIN_SIZE + BLOCK_SIZE * 5;
+    x = HMARGIN_SIZE + BLOCK_SIZE / 2; y = VMARGIN_SIZE + BLOCK_SIZE * 5;
     MoveToEx(hdc, x, y + 1, NULL);
     x += BLOCK_SIZE * 10;
     LineTo(hdc, x + 1, y + 1);
-    y = MARGIN_SIZE + BLOCK_SIZE * 4;
+    y = VMARGIN_SIZE + BLOCK_SIZE * 4;
     LineTo(hdc, x + 1, y + 1);
-    x = MARGIN_SIZE + BLOCK_SIZE * 11;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 11;
     LineTo(hdc, x + 1, y + 1);
-    y = MARGIN_SIZE;
+    y = VMARGIN_SIZE;
     LineTo(hdc, x + 1, y - 1);
     // 影
     SelectObject(hdc, pnM2);
-    x = MARGIN_SIZE + BLOCK_SIZE * 11; y = MARGIN_SIZE;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 11; y = VMARGIN_SIZE;
     MoveToEx(hdc, x, y - 1, NULL);
-    x = MARGIN_SIZE;
+    x = HMARGIN_SIZE;
     LineTo(hdc, x - 1, y - 1);
-    y = MARGIN_SIZE + BLOCK_SIZE * 4;
+    y = VMARGIN_SIZE + BLOCK_SIZE * 4;
     LineTo(hdc, x - 1, y + 1);
-    x = MARGIN_SIZE + BLOCK_SIZE / 2; y = MARGIN_SIZE + BLOCK_SIZE * 4;
+    x = HMARGIN_SIZE + BLOCK_SIZE / 2; y = VMARGIN_SIZE + BLOCK_SIZE * 4;
     MoveToEx(hdc, x - 1, y + 2, NULL);
-    y = MARGIN_SIZE + BLOCK_SIZE * 5;
+    y = VMARGIN_SIZE + BLOCK_SIZE * 5;
     LineTo(hdc, x - 1, y + 1);
 
     // 柱
     SelectObject(hdc, pnLN);
     SelectObject(hdc, brM1);
-    x = MARGIN_SIZE + BLOCK_SIZE * 5;
-    y = MARGIN_SIZE;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 5;
+    y = VMARGIN_SIZE;
     Rectangle(hdc, x, y, x + BLOCK_SIZE + 1, y + BLOCK_SIZE * 4 + 1);
     // ハイライト
     SelectObject(hdc, pnM3);
@@ -2576,9 +2579,9 @@ void TableWindow::drawFrame50(HDC hdc) {
 
     // キー
     for (int j = 0; j < 5; j++) {
-        y = MARGIN_SIZE + BLOCK_SIZE * j;
+        y = VMARGIN_SIZE + BLOCK_SIZE * j;
         for (int i = 0; i < 10; i++) {
-            x = MARGIN_SIZE + BLOCK_SIZE * i;
+            x = HMARGIN_SIZE + BLOCK_SIZE * i;
             if (j == 4) { x += BLOCK_SIZE / 2; }
             else if (4 < i) { x += BLOCK_SIZE; }
             SelectObject(hdc, pnLN);
@@ -2633,26 +2636,26 @@ void TableWindow::drawFrame10(HDC hdc) {
     Rectangle(hdc, 0, 0, WIDTH, HEIGHT);
     // ハイライト
     SelectObject(hdc, pnM3);
-    x = MARGIN_SIZE; y = MARGIN_SIZE + BLOCK_SIZE * 5;
+    x = HMARGIN_SIZE; y = VMARGIN_SIZE + BLOCK_SIZE * 5;
     MoveToEx(hdc, x, y + 1, NULL);
-    x = MARGIN_SIZE + BLOCK_SIZE * 11;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 11;
     LineTo(hdc, x + 1, y + 1);
-    y = MARGIN_SIZE;
+    y = VMARGIN_SIZE;
     LineTo(hdc, x + 1, y - 1);
     // 影
     SelectObject(hdc, pnM2);
-    x = MARGIN_SIZE + BLOCK_SIZE * 11; y = MARGIN_SIZE;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 11; y = VMARGIN_SIZE;
     MoveToEx(hdc, x, y - 1, NULL);
-    x = MARGIN_SIZE;
+    x = HMARGIN_SIZE;
     LineTo(hdc, x - 1, y - 1);
-    y = MARGIN_SIZE + BLOCK_SIZE * 5;
+    y = VMARGIN_SIZE + BLOCK_SIZE * 5;
     LineTo(hdc, x - 1, y + 1);
 
     // 柱
     SelectObject(hdc, pnLN);
     SelectObject(hdc, brM1);
-    x = MARGIN_SIZE + BLOCK_SIZE * 5;
-    y = MARGIN_SIZE;
+    x = HMARGIN_SIZE + BLOCK_SIZE * 5;
+    y = VMARGIN_SIZE;
     Rectangle(hdc, x, y, x + BLOCK_SIZE + 1, y + BLOCK_SIZE * 5 + 1);
     // ハイライト
     SelectObject(hdc, pnM3);
@@ -2667,8 +2670,8 @@ void TableWindow::drawFrame10(HDC hdc) {
 
     // キー
     for (int i = 0; i < 10; i++) {
-        x = MARGIN_SIZE + BLOCK_SIZE * i;
-        y = MARGIN_SIZE;
+        x = HMARGIN_SIZE + BLOCK_SIZE * i;
+        y = VMARGIN_SIZE;
         if (4 < i) { x += BLOCK_SIZE; }
         SelectObject(hdc, pnLN);
         SelectObject(hdc, brK1);
@@ -2717,12 +2720,12 @@ void TableWindow::drawVKBOFF(HDC hdc) {
         Rectangle(hdc, rcClick.left, rcClick.top, rcClick.right, rcClick.bottom);
     }
     for (int y = 0; y < 5; y++) {
-        int py = MARGIN_SIZE + BLOCK_SIZE * y;
+        int py = VMARGIN_SIZE + BLOCK_SIZE * y;
         for (int x = 0; x < 10; x++) {
             int k = y * 10 + x;
             if (TC_NKEYS <= k) { goto END; }
 
-            int px = MARGIN_SIZE + BLOCK_SIZE * x;
+            int px = HMARGIN_SIZE + BLOCK_SIZE * x;
             if (y == 4) { px += BLOCK_SIZE / 2; }
             else if (5 <= x) { px += BLOCK_SIZE; }
 
@@ -2770,25 +2773,25 @@ void TableWindow::drawVKB50(HDC hdc, bool isWithBothSide) {
         SelectObject(hdc, brCL);
         Rectangle(hdc, rcClick.left, rcClick.top, rcClick.right, rcClick.bottom);
     }
-    if (isShift) { // 柱の最下部をShiftキーとして背景色を変える
+    if (isShift) { // z段の左端をShiftキーとして背景色を変える
         SelectObject(hdc, brCL);
-        int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-        int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+        int left = 1;
+        int top = VMARGIN_SIZE + BLOCK_SIZE * 3 + 1;
         Rectangle(hdc, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
     }
-    if (isCtrl) { // 柱の下から1つ上のブロックをCtrlキーとして背景色を変える
+    if (isCtrl) { // s段の左端をCtrlキーとして背景色を変える
         SelectObject(hdc, brCL);
-        int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-        int top = MARGIN_SIZE + BLOCK_SIZE * 2 + 1;
+        int left = 1;
+        int top = VMARGIN_SIZE + BLOCK_SIZE * 2 + 1;
         Rectangle(hdc, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
     }
     for (int y = 0; y < 5; y++) {
-        int py = MARGIN_SIZE + BLOCK_SIZE * y;
+        int py = VMARGIN_SIZE + BLOCK_SIZE * y;
         for (int x = 0; x < 10; x++) {
             int k = y * 10 + x;
             if (TC_NKEYS <= k) { goto END; }
 
-            int px = MARGIN_SIZE + BLOCK_SIZE * x;
+            int px = HMARGIN_SIZE + BLOCK_SIZE * x;
             if (y == 4) { px += BLOCK_SIZE / 2; }
             else if (5 <= x) { px += BLOCK_SIZE; }
 
@@ -2922,8 +2925,8 @@ void TableWindow::drawVKB10(HDC hdc) {
 
     for (int x = 0; x < 10; x++) {
         int k = 20 + x;
-        int px = MARGIN_SIZE + BLOCK_SIZE * x;
-        int py = MARGIN_SIZE;
+        int px = HMARGIN_SIZE + BLOCK_SIZE * x;
+        int py = VMARGIN_SIZE;
         if (5 <= x) { px += BLOCK_SIZE; }
         if (tc->vkbBG[k] == TC_BG_HISTPTR) {
             Rectangle(hdc, px + 2, py + 2,
@@ -2941,7 +2944,7 @@ void TableWindow::drawVKB10(HDC hdc) {
         RECT rctmp = {0, 0, CHAR_SIZE, CHAR_SIZE };
         int dy = (CHAR_SIZE-DrawText(hdc, "亜", 2, &rctmp, DT_CALCRECT))/3;
         for (int y = 0; s && *s && y < 6; y++) {
-            py = MARGIN_SIZE + (CHAR_SIZE + 1) * y + 5;
+            py = VMARGIN_SIZE + (CHAR_SIZE + 1) * y + 5;
             if (IS_ZENKAKU(*s)) {
                 TextOut(hdc, px + stylePadding*3/2 + dx, py + dy, s, 2); s += 2;
             } else {
@@ -2969,13 +2972,13 @@ void TableWindow::drawMiniBuffer(HDC hdc, int height, COLORREF col,
     HGDIOBJ fnSave = SelectObject(hdc, hLFont);
 
     // background
-    int px = MARGIN_SIZE + BLOCK_SIZE * 5;
-    int py = MARGIN_SIZE;
+    int px = HMARGIN_SIZE + BLOCK_SIZE * 5;
+    int py = VMARGIN_SIZE;
     Rectangle(hdc, px + 2, py + 2, px + BLOCK_SIZE, py + BLOCK_SIZE * height);
 
     // text
-    px = MARGIN_SIZE + BLOCK_SIZE * 5 + stylePadding/2;
-    py = MARGIN_SIZE + BLOCK_SIZE * 0 + stylePadding/2;
+    px = HMARGIN_SIZE + BLOCK_SIZE * 5 + stylePadding/2;
+    py = VMARGIN_SIZE + BLOCK_SIZE * 0 + stylePadding/2;
     SetTextColor(hdc, COL_BLACK);
     SetBkMode(hdc, TRANSPARENT);
 
@@ -3028,24 +3031,24 @@ void TableWindow::drawMiniBuffer(HDC hdc, int height, COLORREF col,
 // 仮想鍵盤上のクリック位置をもとに、対応するキーを返す (50 鍵)
 int TableWindow::getFromVKB50(int x, int y) {
     // drawFrameOFF()の逆
-    int j = (y - MARGIN_SIZE) / BLOCK_SIZE;
+    int j = (y - VMARGIN_SIZE) / BLOCK_SIZE;
     if (j < 0) { j = 0; }
     else if (j > 4) { j = 4; }
 
-    rcClick.top = MARGIN_SIZE + BLOCK_SIZE * j + 1;
+    rcClick.top = VMARGIN_SIZE + BLOCK_SIZE * j + 1;
     rcClick.left = 1;
     rcClick.right = rcClick.left + BLOCK_SIZE;
     rcClick.bottom = rcClick.top + BLOCK_SIZE;
 
-    int tmp = x - MARGIN_SIZE;
+    int tmp = x - HMARGIN_SIZE;
     if (j == 4) {
         tmp -= BLOCK_SIZE / 2;
         if (tmp < 0) {
-            rcClick.right = rcClick.left + MARGIN_SIZE + BLOCK_SIZE / 2;
+            rcClick.right = rcClick.left + HMARGIN_SIZE + BLOCK_SIZE / 2;
             return LEFT_KEY;
         }
     } else if (j < 4 && BLOCK_SIZE * 5 <= tmp && tmp < BLOCK_SIZE * 6) { // 柱
-        rcClick.left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+        rcClick.left = HMARGIN_SIZE + BLOCK_SIZE * 5 + 1;
         rcClick.right = rcClick.left + BLOCK_SIZE;
         switch (j) {
             case 0: return ESC_KEY;
@@ -3060,20 +3063,37 @@ int TableWindow::getFromVKB50(int x, int y) {
         tmp -= BLOCK_SIZE; // 柱のBLOCK分を引く
     }
     if (tmp < 0) {
-        rcClick.right = rcClick.left + MARGIN_SIZE;
-        return LEFT_KEY;
+        rcClick.right = rcClick.left + HMARGIN_SIZE;
+        switch (j) {
+            case 0: return ESC_KEY;
+            case 1: return TAB_KEY;
+            case 3:
+                isSoftKbdShift = !isSoftKbdShift;
+                return VK_LSHIFT; // キー番号とかぶるのでVK_SHIFT(16)は使わない
+            case 2: // XXX: Ctrlキー対応
+            default:
+                return LEFT_KEY;
+        }
     }
     int i = tmp / BLOCK_SIZE;
 
-    rcClick.left = MARGIN_SIZE + BLOCK_SIZE * i + 1;
+    rcClick.left = HMARGIN_SIZE + BLOCK_SIZE * i + 1;
     if (j == 4) { rcClick.left += BLOCK_SIZE / 2; }
     else if (4 < i) { rcClick.left += BLOCK_SIZE; }
     rcClick.right = rcClick.left + BLOCK_SIZE;
 
     if (i > 9) {
-        rcClick.right = rcClick.left + MARGIN_SIZE;
-        if (j == 4) { rcClick.right += BLOCK_SIZE / 2; }
-        return RIGHT_KEY;
+        rcClick.right = rcClick.left + HMARGIN_SIZE;
+        switch (j) {
+            case 0: return BS_KEY;
+            case 1: return RET_KEY;
+            case 2: return UP_KEY;
+            case 3: return DOWN_KEY;
+            case 4:
+            default:
+                rcClick.right += BLOCK_SIZE / 2;
+                return RIGHT_KEY;
+        }
     }
 
     int k = j * 10 + i; // キー番号
@@ -3090,11 +3110,21 @@ int TableWindow::getFromVKB50(int x, int y) {
 // -------------------------------------------------------------------
 // キー番号に対するrcClickを設定する
 void TableWindow::setRcClickVKB50(int tckey) {
-    rcClick.top = MARGIN_SIZE + 1;
+    rcClick.top = VMARGIN_SIZE + 1;
     rcClick.left = 1;
     rcClick.right = rcClick.left;
     rcClick.bottom = rcClick.top;
 
+#define SETRECTRIGHT(row) \
+        rcClick.top = VMARGIN_SIZE + BLOCK_SIZE * (row) + 1; \
+        rcClick.left = HMARGIN_SIZE + BLOCK_SIZE * 11 + 1; \
+        rcClick.bottom = rcClick.top + BLOCK_SIZE; \
+        rcClick.right = rcClick.left + BLOCK_SIZE;
+#define SETRECTLEFT(row) \
+        rcClick.top = VMARGIN_SIZE + BLOCK_SIZE * (row) + 1; \
+        rcClick.left = 1; \
+        rcClick.bottom = rcClick.top + BLOCK_SIZE; \
+        rcClick.right = rcClick.left + BLOCK_SIZE;
     int k;
     if (tckey < TC_NKEYS) {
         k = tckey;
@@ -3102,18 +3132,42 @@ void TableWindow::setRcClickVKB50(int tckey) {
         k = TC_UNSHIFT(tckey);
     } else if (TC_ISCTRL(tckey)) {
         k = TC_UNCTRL(tckey);
-    } else if (tckey == RET_KEY) {
-        k = TC_NKEYS; // 右下端の空いてる箱をRETURNキーに
+    } else if (tckey == ESC_KEY) { // 数字段の左端に
+        SETRECTLEFT(0);
+        return;
+    } else if (tckey == TAB_KEY) { // 数字段の左端に
+        SETRECTLEFT(1);
+        return;
+    } else if (tckey == BS_KEY) { // 数字段の右端に
+        SETRECTRIGHT(0);
+        return;
+    } else if (tckey == RET_KEY) { // p段の右端に
+        SETRECTRIGHT(1);
+        return;
+    } else if (tckey == UP_KEY) { // L段の右端に
+        SETRECTRIGHT(2);
+        return;
+    } else if (tckey == DOWN_KEY) { // M段の右端に
+        SETRECTRIGHT(3);
+        return;
+    } else if (tckey == LEFT_KEY) { // 最下段の左端に
+        SETRECTLEFT(4);
+        rcClick.right += BLOCK_SIZE / 2;
+        return;
+    } else if (tckey == RIGHT_KEY) { // 最下段の右端に
+        SETRECTRIGHT(4);
+        rcClick.left -= BLOCK_SIZE / 2;
+        return;
     } else {
         return;
     }
     int j = k / 10;
     int i = k % 10;
 
-    rcClick.top = MARGIN_SIZE + BLOCK_SIZE * j + 1;
+    rcClick.top = VMARGIN_SIZE + BLOCK_SIZE * j + 1;
     rcClick.bottom = rcClick.top + BLOCK_SIZE;
 
-    rcClick.left = MARGIN_SIZE + BLOCK_SIZE * i + 1;
+    rcClick.left = HMARGIN_SIZE + BLOCK_SIZE * i + 1;
     if (j == 4) { rcClick.left += BLOCK_SIZE / 2; }
     else if (4 < i) { rcClick.left += BLOCK_SIZE; }
     rcClick.right = rcClick.left + BLOCK_SIZE;
@@ -3121,16 +3175,16 @@ void TableWindow::setRcClickVKB50(int tckey) {
 
 // 仮想鍵盤上のクリック位置をもとに、対応するキーを返す (10 鍵)
 int TableWindow::getFromVKB10(int x, int y) {
-    rcClick.top = MARGIN_SIZE + 1;
+    rcClick.top = VMARGIN_SIZE + 1;
     rcClick.left = 1;
     rcClick.right = rcClick.left + BLOCK_SIZE;
     rcClick.bottom = rcClick.top + BLOCK_SIZE * 5;
 
-    int tmp = x - MARGIN_SIZE;
+    int tmp = x - HMARGIN_SIZE;
     if (BLOCK_SIZE * 5 <= tmp && tmp < BLOCK_SIZE * 6) { // 柱
-        int j = (y - MARGIN_SIZE) / BLOCK_SIZE;
-        rcClick.left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
-        rcClick.top = MARGIN_SIZE + BLOCK_SIZE * j + 1;
+        int j = (y - VMARGIN_SIZE) / BLOCK_SIZE;
+        rcClick.left = HMARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+        rcClick.top = VMARGIN_SIZE + BLOCK_SIZE * j + 1;
         rcClick.right = rcClick.left + BLOCK_SIZE;
         rcClick.bottom = rcClick.top + BLOCK_SIZE;
         if (j <= 0) {
@@ -3148,17 +3202,17 @@ int TableWindow::getFromVKB10(int x, int y) {
         tmp -= BLOCK_SIZE;
     }
     if (tmp < 0) {
-        rcClick.right = rcClick.left + MARGIN_SIZE;
+        rcClick.right = rcClick.left + HMARGIN_SIZE;
         return LEFT_KEY;
     }
     int i = tmp / BLOCK_SIZE;
 
-    rcClick.left = MARGIN_SIZE + BLOCK_SIZE * i + 1;
+    rcClick.left = HMARGIN_SIZE + BLOCK_SIZE * i + 1;
     if (i > 4) { rcClick.left += BLOCK_SIZE; }
     rcClick.right = rcClick.left + BLOCK_SIZE;
 
     if (i > 9) {
-        rcClick.right = rcClick.left + MARGIN_SIZE;
+        rcClick.right = rcClick.left + HMARGIN_SIZE;
         return RIGHT_KEY;
     }
 

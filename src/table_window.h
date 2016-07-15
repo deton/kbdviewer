@@ -135,9 +135,10 @@ typedef VOID (CALLBACK* MYWINEVENTPROC)(
 #define CHAR_SIZE (styleFontSize)          // 文字の大きさ
 #define LARGE_CHAR_SIZE (CHAR_SIZE+stylePadding*2)    // 大きい文字の大きさ
 #define BLOCK_SIZE (CHAR_SIZE+stylePadding*3)         // 仮想鍵盤のキーの大きさ
-#define MARGIN_SIZE (4)         // 仮想鍵盤の天地左右の余白
-#define WIDTH  (MARGIN_SIZE * 2 + BLOCK_SIZE * 11 + 1)  // 仮想鍵盤の横幅
-#define HEIGHT (MARGIN_SIZE * 2 + BLOCK_SIZE * 5 + 1)   // 仮想鍵盤の縦幅
+#define VMARGIN_SIZE (4)         // 仮想鍵盤の天地の余白
+#define HMARGIN_SIZE BLOCK_SIZE         // 仮想鍵盤の左右の余白
+#define WIDTH  (HMARGIN_SIZE * 2 + BLOCK_SIZE * 11 + 1)  // 仮想鍵盤の横幅
+#define HEIGHT (VMARGIN_SIZE * 2 + BLOCK_SIZE * 5 + 1)   // 仮想鍵盤の縦幅
 #define TRUNC_MARK_SIZE (BLOCK_SIZE/3+3)
 #define SHIFT_MARK_SIZE (BLOCK_SIZE/5+3)
 
