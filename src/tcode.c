@@ -321,6 +321,9 @@ void TCode::keyinNormal(int key) {
     case CRIGHT_KEY:
         currentCtrl = 1;
     }
+    if (TC_CTRL(key)) {
+        currentCtrl = 1;
+    }
     if (OPT_useCtrlKey == 2 && currentCtrl && key != CLEFT_KEY && key != CRIGHT_KEY) {
         currentCtrl = 0;
         switch (key) {
@@ -479,6 +482,10 @@ void TCode::keyinNormal(int key) {
 
     default:
         break;
+    }
+    if (TC_CTRL(key)) {
+        pushPre_clearPost(vkey[TC_UNCTRL(key)]);
+        return;
     }
 
     /* à»â∫ T-Code ÉLÅ[

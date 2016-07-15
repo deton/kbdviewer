@@ -249,6 +249,9 @@ private:
     // Shift押下検出（仮想鍵盤表示用）
     bool isShift;
     bool isShiftPrev;
+    // Ctrl押下検出（仮想鍵盤表示用）
+    bool isCtrl;
+    bool isCtrlPrev;
     // Timeout判定用
     int deciSecAfterStroke;
 

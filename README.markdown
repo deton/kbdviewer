@@ -20,7 +20,7 @@
 keybd_event()を発行してIMEやアプリにキーを送ります。
 
 ## 制約、既知の問題
-* Ctrlキー等は未対応
+* Altキー等は未対応
 
 もっとましな形で作るなら、[Carnac](https://github.com/Code52/carnac)を改造したり、[pyHook](https://sourceforge.net/projects/pyhook/)を使うのが良いかもしれません。
 

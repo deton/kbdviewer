@@ -12,7 +12,7 @@
 
 // -------------------------------------------------------------------
 // コンストラクタ
-TableWindow::TableWindow(HINSTANCE i) {
+TableWindow::TableWindow(HINSTANCE i): isCtrl(false), isCtrlPrev(false) {
     hFont = 0;
     hLFont = 0;
     instance = i;
@@ -181,7 +181,11 @@ void TableWindow::activate() {
     RegisterHotKey(hwnd, BS_KEY,  0, VK_BACK);
     RegisterHotKey(hwnd, RET_KEY, 0, VK_RETURN);
     RegisterHotKey(hwnd, TAB_KEY, 0, VK_TAB);
-    if (tc->OPT_useCtrlKey) {
+    if (tc->OPT_useCtrlKey == 3) {
+        for (int i = 0; i < TC_NKEYS; i++) {
+            RegisterHotKey(hwnd, TC_CTRL(i), MOD_CONTROL, tc->vkey[i]);
+        }
+    } else if (tc->OPT_useCtrlKey) {
         RegisterHotKey(hwnd, CG_KEY, MOD_CONTROL, 'G');
         RegisterHotKey(hwnd, CH_KEY, MOD_CONTROL, 'H');
         RegisterHotKey(hwnd, CM_KEY, MOD_CONTROL, 'M');
@@ -234,7 +238,11 @@ void TableWindow::inactivate() {
     UnregisterHotKey(hwnd, BS_KEY);
     UnregisterHotKey(hwnd, RET_KEY);
     UnregisterHotKey(hwnd, TAB_KEY);
-    if (tc->OPT_useCtrlKey) {
+    if (tc->OPT_useCtrlKey == 3) {
+        for (int i = 0; i < TC_NKEYS; i++) {
+            UnregisterHotKey(hwnd, TC_CTRL(i));
+        }
+    } else if (tc->OPT_useCtrlKey) {
         UnregisterHotKey(hwnd, CG_KEY);
         UnregisterHotKey(hwnd, CH_KEY);
         UnregisterHotKey(hwnd, CM_KEY);
@@ -320,7 +328,11 @@ void TableWindow::disableHotKey() {
     UnregisterHotKey(hwnd, BS_KEY);
     UnregisterHotKey(hwnd, RET_KEY);
     UnregisterHotKey(hwnd, TAB_KEY);
-    if (tc->OPT_useCtrlKey) {
+    if (tc->OPT_useCtrlKey == 3) {
+        for (int i = 0; i < TC_NKEYS; i++) {
+            UnregisterHotKey(hwnd, TC_CTRL(i));
+        }
+    } else if (tc->OPT_useCtrlKey) {
         UnregisterHotKey(hwnd, CG_KEY);
         UnregisterHotKey(hwnd, CH_KEY);
         UnregisterHotKey(hwnd, CM_KEY);
@@ -365,7 +377,11 @@ void TableWindow::resumeHotKey() {
     RegisterHotKey(hwnd, BS_KEY,  0, VK_BACK);
     RegisterHotKey(hwnd, RET_KEY, 0, VK_RETURN);
     RegisterHotKey(hwnd, TAB_KEY, 0, VK_TAB);
-    if (tc->OPT_useCtrlKey) {
+    if (tc->OPT_useCtrlKey == 3) {
+        for (int i = 0; i < TC_NKEYS; i++) {
+            RegisterHotKey(hwnd, TC_CTRL(i), MOD_CONTROL, tc->vkey[i]);
+        }
+    } else if (tc->OPT_useCtrlKey) {
         RegisterHotKey(hwnd, CG_KEY, MOD_CONTROL, 'G');
         RegisterHotKey(hwnd, CH_KEY, MOD_CONTROL, 'H');
         RegisterHotKey(hwnd, CM_KEY, MOD_CONTROL, 'M');
@@ -690,7 +706,7 @@ int TableWindow::handlePaint() {
     // OFF 時
     if (tc->mode == TCode::OFF) {
         drawFrameOFF(hdc);
-#if 0
+#ifdef KANWIN
         if (tc->OPT_softKeyboard) {
             MojiBuffer mb(4);
             mb.clear(); mb.pushSoft("EB漢S"); // ESC, BS, ON/OFF, Shift
@@ -763,7 +779,7 @@ int TableWindow::handlePaint() {
             work.pushSoft(tc->explicitGG);
             work.popN(work.length()-tc->ittaku);
             drawMiniBuffer(hdc, 4, COL_ON_K1, &work);
-#if 0
+#ifdef KANWIN
         } else if (tc->OPT_softKeyboard) {
             MojiBuffer mb(4);
             mb.clear(); mb.pushSoft("EB漢S"); // ESC, BS, ON/OFF, Shift
@@ -829,7 +845,7 @@ int TableWindow::handleTimer() {
         } else {
             isShiftNow = !!(GetKeyState(VK_SHIFT) & 0x8000);  // GetAsyncKeyState じゃなくて大丈夫なのだろうか
         }
-#if 0
+#ifdef KANWIN
         if ((tc->mode == TCode::NORMAL || tc->mode == TCode::CAND1)
             && !tc->helpMode 
             && IsWindowVisible(hwnd)
@@ -838,7 +854,7 @@ int TableWindow::handleTimer() {
                 if (tc->OPT_shiftLockStroke == 1) tc->makeVKB(tc->lockedBlock!=tc->table&&!isShift);
                 InvalidateRect(hwnd, NULL, FALSE);
         }
-#endif
+#else
         if (isShiftNow != isShift) {
             int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
             int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
@@ -846,8 +862,23 @@ int TableWindow::handleTimer() {
             SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
             InvalidateRect(hwnd, &r, FALSE);
         }
+#endif
         isShiftPrev = isShift;
         isShift = isShiftNow;
+
+        int isCtrlNow;
+        isCtrlNow = !!(GetAsyncKeyState(VK_LCONTROL)&0x8000);
+        if (!isCtrlNow) isCtrlNow = !!(GetAsyncKeyState(VK_RCONTROL)&0x8000);
+        if (!isCtrlNow) isCtrlNow |= !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
+        if (isCtrl != isCtrlPrev) {
+            int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+            int top = MARGIN_SIZE + BLOCK_SIZE * 2 + 1;
+            RECT r;
+            SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
+            InvalidateRect(hwnd, &r, FALSE);
+        }
+        isCtrlPrev = isCtrl;
+        isCtrl = isCtrlNow;
         return 0;
 }
 
@@ -1036,6 +1067,8 @@ int TableWindow::handleAsSoftKbd() {
             vk = tc->vkey[wParam];
         } else if (TC_ISSHIFTED(wParam)) {
             vk = tc->vkey[TC_UNSHIFT(wParam)];
+        } else if (TC_ISCTRL(wParam)) {
+            vk = TC_UNCTRL(wParam);
         } else {
             switch (wParam) {
             case ACTIVE_KEY:
@@ -1303,6 +1336,15 @@ int TableWindow::handleHotKey() {
             if (isShift != isShiftTmp) {
                 int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
                 int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
+                RECT r;
+                SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
+                InvalidateRect(hwnd, &r, FALSE);
+            }
+            bool isCtrlTmp = isCtrlPrev;
+            isCtrl = isCtrlPrev = !!(GetKeyState(VK_CONTROL) & 0x8000);
+            if (isCtrl != isCtrlTmp) {
+                int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+                int top = MARGIN_SIZE + BLOCK_SIZE * 2 + 1;
                 RECT r;
                 SetRect(&r, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
                 InvalidateRect(hwnd, &r, FALSE);
@@ -2063,8 +2105,9 @@ void TableWindow::output() {
     GetWindowThreadProcessId(targetWin, &targetProcess);
     HANDLE hTargetProcess = OpenProcess(SYNCHRONIZE, 0, targetProcess);
     int i;
-    int lctrl, rctrl, nowctrl;
     int sc;
+#ifdef KANWIN
+    int lctrl, rctrl, nowctrl;
     lctrl = !!(GetAsyncKeyState(VK_LCONTROL)&0x8000);  // Win9xではVK_LCONTROL等使えないそうで
     rctrl = !!(GetAsyncKeyState(VK_RCONTROL)&0x8000);
     if (!rctrl) lctrl |= !!(GetAsyncKeyState(VK_CONTROL)&0x8000);  // 対策してみたが多分不十分
@@ -2102,11 +2145,13 @@ void TableWindow::output() {
         tc->postBufferCount(headerLen);
         tc->postDelete = 0;
     }
+#endif
 
     for (i = headerLen; i < len; i++) {
         MOJI m = tc->preBuffer->moji(i);
         int h = MOJI2H(m);
         int l = MOJI2L(m);
+#ifdef KANWIN
         if (mojitype(m) == MOJI_CTRLVKY) {
             if (!nowctrl) {
                 sc = MapVirtualKey(VK_CONTROL, MAPVK_VK_TO_VSC);
@@ -2124,6 +2169,7 @@ void TableWindow::output() {
                 nowctrl = 0;
             }
         }
+#endif
         char mbc[3];
         WCHAR wc[3];
         int mlen, wlen;
@@ -2300,6 +2346,7 @@ void TableWindow::output() {
             break;
         } // switch mojitype(m)
     } // for i
+#ifdef KANWIN
     if (lctrl || rctrl) {
         if (!nowctrl) {
             sc = MapVirtualKey(VK_CONTROL, MAPVK_VK_TO_VSC);
@@ -2313,6 +2360,7 @@ void TableWindow::output() {
             if (rctrl) keybd_event(VK_CONTROL, sc, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, NULL);
         }
     }
+#endif
     tc->preBuffer->clear();
 
     // カーソルに追従
@@ -2728,6 +2776,12 @@ void TableWindow::drawVKB50(HDC hdc, bool isWithBothSide) {
         int top = MARGIN_SIZE + BLOCK_SIZE * 3 + 1;
         Rectangle(hdc, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
     }
+    if (isCtrl) { // 柱の下から1つ上のブロックをCtrlキーとして背景色を変える
+        SelectObject(hdc, brCL);
+        int left = MARGIN_SIZE + BLOCK_SIZE * 5 + 1;
+        int top = MARGIN_SIZE + BLOCK_SIZE * 2 + 1;
+        Rectangle(hdc, left, top, left + BLOCK_SIZE, top + BLOCK_SIZE);
+    }
     for (int y = 0; y < 5; y++) {
         int py = MARGIN_SIZE + BLOCK_SIZE * y;
         for (int x = 0; x < 10; x++) {
@@ -3046,6 +3100,8 @@ void TableWindow::setRcClickVKB50(int tckey) {
         k = tckey;
     } else if (TC_ISSHIFTED(tckey)) {
         k = TC_UNSHIFT(tckey);
+    } else if (TC_ISCTRL(tckey)) {
+        k = TC_UNCTRL(tckey);
     } else if (tckey == RET_KEY) {
         k = TC_NKEYS; // 右下端の空いてる箱をRETURNキーに
     } else {
