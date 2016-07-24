@@ -20,10 +20,16 @@
 キーが打たれた時に送られてくるWM_HOTKEYをもとに表示を行うとともに、
 keybd_event()を発行してIMEやアプリにキーを送ります。
 
+### 設定
+* テンキーを表示する: kanchoku.ini で numpad=1 を設定。
+![テンキー表示例](numpad.gif)
+* 文字サイズを変更する: kwstyle.exe を起動してFontサイズを変更。(kanchoku.iniのstyle_fontsizeに反映される)
+
 ## 制約、既知の問題
 * AltキーやPageUp/PageDown/Home/End/Delキー等は未対応
 * ShiftキーやCtrlキーとの組み合わせは、Shift+文字キーやCtrl+文字キーのみ対応。Shift+TAB、Ctrl+←等やShift+Ctrl+文字等には未対応
 * 他プログラムでRegisterHotKey()されているキーはうまく動作しない場合あり
+* kbdviewerウィンドウ移動後に、キー送り付けがうまく動かなくなる場合あり。一度kbdviewerを終了してみてください
 
 もっとましな形で作るなら、WH_KEYBOARD_LLを使う形にしたり、
 [Carnac](https://github.com/Code52/carnac)を改造したり、

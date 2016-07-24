@@ -112,6 +112,21 @@ typedef VOID (CALLBACK* MYWINEVENTPROC)(
 #define CLEFT_KEY  (0x100 + 71) // Ctrl+←
 #define CRIGHT_KEY (0x100 + 72) // Ctrl+→
 
+#define NUMPAD0_KEY (0x100 + 0x60) // Numpad 0 VK_NUMPAD0 0x60
+#define NUMPAD1_KEY (0x100 + 0x61)
+#define NUMPAD2_KEY (0x100 + 0x62)
+#define NUMPAD3_KEY (0x100 + 0x63)
+#define NUMPAD4_KEY (0x100 + 0x64)
+#define NUMPAD5_KEY (0x100 + 0x65)
+#define NUMPAD6_KEY (0x100 + 0x66)
+#define NUMPAD7_KEY (0x100 + 0x67)
+#define NUMPAD8_KEY (0x100 + 0x68)
+#define NUMPAD9_KEY (0x100 + 0x69)
+#define NUMPADMUL_KEY (0x100 + 0x6A) // Numpad * VK_MULTIPLY 0x6A
+#define NUMPADADD_KEY (0x100 + 0x6B) // Numpad + VK_ADD 0x6B
+#define NUMPADSUB_KEY (0x100 + 0x6D) // Numpad - VK_SUBTRACT 0x6D
+#define NUMPADDECIMAL_KEY (0x100 + 0x6E) // Numpad . VK_DECIMAL 0x6E
+#define NUMPADDIV_KEY (0x100 + 0x6F) // Numpad / VK_DIVIDE 0x6F
 
 /* -------------------------------------------------------------------
  * 仮想鍵盤 (1) - フォントとウィンドウの大きさ
@@ -137,7 +152,7 @@ typedef VOID (CALLBACK* MYWINEVENTPROC)(
 #define BLOCK_SIZE (CHAR_SIZE+stylePadding*3)         // 仮想鍵盤のキーの大きさ
 #define VMARGIN_SIZE (4)         // 仮想鍵盤の天地の余白
 #define HMARGIN_SIZE BLOCK_SIZE         // 仮想鍵盤の左右の余白
-#define WIDTH  (HMARGIN_SIZE * 2 + BLOCK_SIZE * 11 + 1)  // 仮想鍵盤の横幅
+#define WIDTH  (HMARGIN_SIZE * 2 + BLOCK_SIZE * 11 + 1 + (OPT_numpad ? BLOCK_SIZE*4 : 0))  // 仮想鍵盤の横幅
 #define HEIGHT (VMARGIN_SIZE * 2 + BLOCK_SIZE * 5 + 1)   // 仮想鍵盤の縦幅
 #define TRUNC_MARK_SIZE (BLOCK_SIZE/3+3)
 #define SHIFT_MARK_SIZE (BLOCK_SIZE/5+3)
@@ -261,6 +276,10 @@ private:
     RECT rcClick; // ソフトキーボードクリック時反転表示
     bool isSoftKbdShift; // ソフトキーボード上シフトキーがオン
 
+    int OPT_numpad;
+#define NUMPAD_KEYS (4*5)
+    int numpad_vkey[NUMPAD_KEYS];
+
     // スタイル設定
     COLORREF styleCol[20];
     char styleFontName[LF_FACESIZE];
@@ -293,6 +312,7 @@ private:
     //void setSpecialHotKey();    // 特殊 HotKey の確保と解放
     void setMazeHotKey(int);
     void setCursorHotKey(int);
+    void setNumpadHotKey(int);
     void disableHotKey();
     void resumeHotKey();
     void disableGlobalHotKey();

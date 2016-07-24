@@ -35,6 +35,9 @@
 #define TC_UNCTRL(k) ((k) & 0x1ff)
 #define TC_ISCTRL(k) ((k) & 0x200)
 
+#define TC_ISNUMPAD(k) ((k) >= NUMPAD0_KEY && (k) <= NUMPADDIV_KEY)
+#define TC_NUMPAD2VKEY(k) ((k) & 0xff)
+
 /* ‰¼‘zŒ®”Õ (‚Ì•`‰æ) ‚ÉŠÖ‚·‚é’è”—Þ
  * --------------------------------
  * ‰¼‘zŒ®”Õ‚É•\Ž¦‚·‚é•¶Žš‚ÌŽí—Þ‚É‰ž‚¶‚½A‘OŒiF (TC_FG_*) ‚Æ”wŒiF (TC_BG_*)B

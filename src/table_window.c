@@ -12,7 +12,8 @@
 
 // -------------------------------------------------------------------
 // コンストラクタ
-TableWindow::TableWindow(HINSTANCE i): isCtrl(false), isCtrlPrev(false) {
+TableWindow::TableWindow(HINSTANCE i): isCtrl(false), isCtrlPrev(false),
+        OPT_numpad(0) {
     hFont = 0;
     hLFont = 0;
     instance = i;
@@ -194,6 +195,7 @@ void TableWindow::activate() {
     }
     if (tc->OPT_clearBufOnMove)
         setCursorHotKey(TRUE);
+    setNumpadHotKey(TRUE);
 
     // 通常モードにする
     tc->mode = TCode::NORMAL;
@@ -251,6 +253,7 @@ void TableWindow::inactivate() {
     }
     if (tc->OPT_clearBufOnMove)
         setCursorHotKey(FALSE);
+    setNumpadHotKey(FALSE);
 
     tc->mode = TCode::OFF;
     setTitleText();
@@ -308,6 +311,21 @@ void TableWindow::setCursorHotKey(int enable) {
     }
 }
 
+void TableWindow::setNumpadHotKey(int enable) {
+    if (!OPT_numpad) {
+        return;
+    }
+    if (enable) {
+        for (int k = NUMPAD0_KEY; k <= NUMPADDIV_KEY; k++) {
+            RegisterHotKey(hwnd, k, 0, TC_NUMPAD2VKEY(k));
+        }
+    } else {
+        for (int k = NUMPAD0_KEY; k <= NUMPADDIV_KEY; k++) {
+            UnregisterHotKey(hwnd, k);
+        }
+    }
+}
+
 void TableWindow::disableHotKey() {
     if (hotKeyMode == EDITCLAUSE) { setMazeHotKey(0); hotKeyMode = EDITCLAUSE; }
     // HotKey の解放
@@ -341,6 +359,7 @@ void TableWindow::disableHotKey() {
     }
     if (tc->OPT_clearBufOnMove)
         setCursorHotKey(FALSE);
+    setNumpadHotKey(FALSE);
     disableGlobalHotKey();
 }
 
@@ -390,6 +409,7 @@ void TableWindow::resumeHotKey() {
     }
     if (tc->OPT_clearBufOnMove)
         setCursorHotKey(TRUE);
+    setNumpadHotKey(TRUE);
     resumeGlobalHotKey();
 }
 
@@ -1472,6 +1492,36 @@ void TableWindow::initTC() {
         error("「tablefile=(ファイル名)」の設定がまちがっているようです");
     }
 
+    // テンキーを表示するかどうか
+    OPT_numpad = GetPrivateProfileInt("kanchoku", "numpad", 0, iniFile);
+    if (OPT_numpad) {
+        // テンキーのレイアウト
+        numpad_vkey[0] = VK_NUMLOCK;
+        numpad_vkey[1] = VK_DIVIDE;
+        numpad_vkey[2] = VK_MULTIPLY;
+        numpad_vkey[3] = VK_SUBTRACT;
+
+        numpad_vkey[4] = VK_NUMPAD7;
+        numpad_vkey[5] = VK_NUMPAD8;
+        numpad_vkey[6] = VK_NUMPAD9;
+        numpad_vkey[7] = VK_ADD;
+
+        numpad_vkey[8]  = VK_NUMPAD4;
+        numpad_vkey[9]  = VK_NUMPAD5;
+        numpad_vkey[10] = VK_NUMPAD6;
+        numpad_vkey[11] = VK_ADD;
+
+        numpad_vkey[12] = VK_NUMPAD1;
+        numpad_vkey[13] = VK_NUMPAD2;
+        numpad_vkey[14] = VK_NUMPAD3;
+        numpad_vkey[15] = VK_RETURN;
+
+        numpad_vkey[16] = VK_NUMPAD0;
+        numpad_vkey[17] = VK_NUMPAD0;
+        numpad_vkey[18] = VK_DECIMAL;
+        numpad_vkey[19] = VK_RETURN;
+    }
+
     /* ---------------------------------------------------------------
      * 補助変換関連
      */
@@ -2502,6 +2552,19 @@ void TableWindow::drawFrameOFF(HDC hdc) {
         }
     }
 
+    // テンキー
+    if (OPT_numpad) {
+        for (int j = 0; j < 5; j++) {
+            y = VMARGIN_SIZE + BLOCK_SIZE * j;
+            for (int i = 0; i < 4; i++) {
+                x = HMARGIN_SIZE * 2 + BLOCK_SIZE * (11 + i);
+                SelectObject(hdc, pnLN);
+                SelectObject(hdc, brK1);
+                Rectangle(hdc, x, y, x + BLOCK_SIZE + 1, y + BLOCK_SIZE + 1);
+            }
+        }
+    }
+
     // 後始末
     SelectObject(hdc, brSave);
     SelectObject(hdc, pnSave);
@@ -2597,6 +2660,29 @@ void TableWindow::drawFrame50(HDC hdc) {
             MoveToEx(hdc, x + BLOCK_SIZE - 1, y + 2, NULL);
             LineTo(hdc, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
             LineTo(hdc, x + 1, y + BLOCK_SIZE - 1);
+        }
+    }
+
+    // テンキー
+    if (OPT_numpad) {
+        for (int j = 0; j < 5; j++) {
+            y = VMARGIN_SIZE + BLOCK_SIZE * j;
+            for (int i = 0; i < 4; i++) {
+                x = HMARGIN_SIZE * 2 + BLOCK_SIZE * (11 + i);
+                SelectObject(hdc, pnLN);
+                SelectObject(hdc, brK1);
+                Rectangle(hdc, x, y, x + BLOCK_SIZE + 1, y + BLOCK_SIZE + 1);
+                // ハイライト
+                SelectObject(hdc, pnK3);
+                MoveToEx(hdc, x + BLOCK_SIZE - 2, y + 1, NULL);
+                LineTo(hdc, x + 1, y + 1);
+                LineTo(hdc, x + 1, y + BLOCK_SIZE - 1);
+                // 影
+                SelectObject(hdc, pnK2);
+                MoveToEx(hdc, x + BLOCK_SIZE - 1, y + 2, NULL);
+                LineTo(hdc, x + BLOCK_SIZE - 1, y + BLOCK_SIZE - 1);
+                LineTo(hdc, x + 1, y + BLOCK_SIZE - 1);
+            }
         }
     }
 
@@ -2723,7 +2809,7 @@ void TableWindow::drawVKBOFF(HDC hdc) {
         int py = VMARGIN_SIZE + BLOCK_SIZE * y;
         for (int x = 0; x < 10; x++) {
             int k = y * 10 + x;
-            if (TC_NKEYS <= k) { goto END; }
+            if (TC_NKEYS <= k) { break; }
 
             int px = HMARGIN_SIZE + BLOCK_SIZE * x;
             if (y == 4) { px += BLOCK_SIZE / 2; }
@@ -2738,6 +2824,27 @@ void TableWindow::drawVKBOFF(HDC hdc) {
                 RECT rctmp = { 0, 0, CHAR_SIZE, CHAR_SIZE };
                 int dy = (CHAR_SIZE-DrawText(hdc, "亜", 2, &rctmp, DT_CALCRECT))/3;
                 TextOut(hdc, px + stylePadding*3/2 + dx + (CHAR_SIZE / 4), py + stylePadding*3/2 + dy, &ch, 1);
+            }
+        }
+    }
+
+    // テンキー
+    if (OPT_numpad) {
+        for (int y = 0; y < 5; y++) {
+            int py = VMARGIN_SIZE + BLOCK_SIZE * y;
+            for (int x = 0; x < 4; x++) {
+                int px = HMARGIN_SIZE * 2 + BLOCK_SIZE * (11 + x);
+                SelectObject(hdc, GetStockObject(NULL_BRUSH));
+                Rectangle(hdc, px + 2, py + 2, px + BLOCK_SIZE, py + BLOCK_SIZE);
+
+                int k = y * 4 + x;
+                char ch = toAscii(numpad_vkey[k], false);
+                if (ch) {
+                    int dx = tc->OPT_win95 ? 0 : 1;
+                    RECT rctmp = { 0, 0, CHAR_SIZE, CHAR_SIZE };
+                    int dy = (CHAR_SIZE-DrawText(hdc, "亜", 2, &rctmp, DT_CALCRECT))/3;
+                    TextOut(hdc, px + stylePadding*3/2 + dx + (CHAR_SIZE / 4), py + stylePadding*3/2 + dy, &ch, 1);
+                }
             }
         }
     }
@@ -2789,7 +2896,7 @@ void TableWindow::drawVKB50(HDC hdc, bool isWithBothSide) {
         int py = VMARGIN_SIZE + BLOCK_SIZE * y;
         for (int x = 0; x < 10; x++) {
             int k = y * 10 + x;
-            if (TC_NKEYS <= k) { goto END; }
+            if (TC_NKEYS <= k) { break; }
 
             int px = HMARGIN_SIZE + BLOCK_SIZE * x;
             if (y == 4) { px += BLOCK_SIZE / 2; }
@@ -2892,6 +2999,27 @@ void TableWindow::drawVKB50(HDC hdc, bool isWithBothSide) {
                     TextOut(hdc, px + stylePadding*3/2 + dx + (CHAR_SIZE / 4), py + stylePadding*3/2 + dy, s, 1);
                 } else {
                     TextOut(hdc, px + stylePadding*3/2 + dx, py + stylePadding*3/2 + dy, s, 2);
+                }
+            }
+        }
+    }
+
+    // テンキー
+    if (OPT_numpad) {
+        for (int y = 0; y < 5; y++) {
+            int py = VMARGIN_SIZE + BLOCK_SIZE * y;
+            for (int x = 0; x < 4; x++) {
+                int px = HMARGIN_SIZE * 2 + BLOCK_SIZE * (11 + x);
+                SelectObject(hdc, GetStockObject(NULL_BRUSH));
+                Rectangle(hdc, px + 2, py + 2, px + BLOCK_SIZE, py + BLOCK_SIZE);
+                int k = y * 4 + x;
+                char ch = toAscii(numpad_vkey[k], false);
+                if (ch) {
+                    int dx = tc->OPT_win95 ? 0 : 1;
+                    RECT rctmp = { 0, 0, CHAR_SIZE, CHAR_SIZE };
+                    int dy = (CHAR_SIZE-DrawText(hdc, "亜", 2, &rctmp, DT_CALCRECT))/3;
+                    SetTextColor(hdc, COL_BLACK);
+                    TextOut(hdc, px + stylePadding*3/2 + dx + (CHAR_SIZE / 4), py + stylePadding*3/2 + dy, &ch, 1);
                 }
             }
         }
@@ -3095,6 +3223,7 @@ int TableWindow::getFromVKB50(int x, int y) {
                 return RIGHT_KEY;
         }
     }
+    //TODO: テンキー対応
 
     int k = j * 10 + i; // キー番号
     if (k == 49) {
@@ -3132,6 +3261,19 @@ void TableWindow::setRcClickVKB50(int tckey) {
         k = TC_UNSHIFT(tckey);
     } else if (TC_ISCTRL(tckey)) {
         k = TC_UNCTRL(tckey);
+    } else if (TC_ISNUMPAD(tckey)) {
+        int vk = TC_NUMPAD2VKEY(tckey);
+        for (int j = 0; j < 5; j++) {
+            for (int i = 0; i < 4; i++) {
+                if (numpad_vkey[j * 4 + i] == vk) {
+                    rcClick.top = VMARGIN_SIZE + BLOCK_SIZE * j + 1;
+                    rcClick.left = HMARGIN_SIZE * 2 + BLOCK_SIZE * (11 + i);
+                    rcClick.bottom = rcClick.top + BLOCK_SIZE;
+                    rcClick.right = rcClick.left + BLOCK_SIZE;
+                    return;
+                }
+            }
+        }
     } else if (tckey == ESC_KEY) { // 数字段の左端に
         SETRECTLEFT(0);
         return;

@@ -487,6 +487,10 @@ void TCode::keyinNormal(int key) {
         pushPre_clearPost(vkey[TC_UNCTRL(key)]);
         return;
     }
+    if (TC_ISNUMPAD(key)) {
+        pushPre_clearPost(TC_NUMPAD2VKEY(key));
+        return;
+    }
 
     /* à»â∫ T-Code ÉLÅ[
      * ----------------
