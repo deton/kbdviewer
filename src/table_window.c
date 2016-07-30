@@ -430,11 +430,13 @@ void TableWindow::resumeGlobalHotKey() {
 void TableWindow::setTitleText() {
     //<multishift2>
     char str[256];
-    sprintf(str, "ë≈åÆëã");
+    sprintf(str, "kbdviewer");
+#ifdef KANWIN
     if (tc->dirTable[DIR_table_name]) {
         strcat(str, " ");
         strcat(str, tc->dirTable[DIR_table_name]);
     }
+#endif
     //</multishift2>
     if (tc->mode == TCode::OFF) {
         //<multishift2>
@@ -448,6 +450,7 @@ void TableWindow::setTitleText() {
         //strcpy(str, "ë≈åÆëã - ON");
         strcat(str, " - ON");
         //</multishift2>
+#ifdef KANWIN
         if (tc->hirakataMode || tc->hanzenMode || tc->punctMode) {
             strcat(str, " [");
             strcat(str, (tc->punctMode    ? "ãÂì«" : "Å\Å\"));
@@ -462,6 +465,7 @@ void TableWindow::setTitleText() {
             strcat(str, (tc->maze2ggMode  ? "èK" : "Å\"));
             strcat(str, "]");
         }
+#endif
         SetWindowText(hwnd, str);
     }
 }
