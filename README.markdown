@@ -40,5 +40,6 @@ keybd_event()を発行してIMEやアプリにキーを送ります。
 * [キー入力を表示しながらスクリーンショットGifを撮る](http://rcmdnk.github.io/blog/2014/08/01/computer-mac-windows/#windows)
  * Macのキーボードビューアには押したキーを表示する機能があるようですが、WindowsのスクリーンキーボードはShiftキー等しか表示してくれない模様
 * [まじかるキーボード](http://www.pluto.dti.ne.jp/araki/soft/old.html)、[はっとけキーボード](http://www.pluto.dti.ne.jp/araki/soft/hattoke.html)
-* On-Screen Keyboardの中には同様の機能を持つツールがありそうな気はしますが未調査
+* [NohBoard](https://sourceforge.net/projects/nohboard/)、[NohBoard ReWrite](https://github.com/ThoNohT/NohBoard)
+* [StreamKB](http://sourceforge.net/projects/streamkb)、[OnScreenKeyboardDisplay](http://sourceforge.net/projects/oskd)
 * その他KeyboardTestツール等
